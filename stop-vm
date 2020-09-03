@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require_relative "vm/vm"
+
+VM.init_system(ARGV.first)
+VM.stop_vm

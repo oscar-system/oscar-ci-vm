@@ -1,0 +1,108 @@
+vm:
+  name: oscar-ci
+  spec: vm/cloud-init.yaml
+  cpus: 4
+  mem: 8G
+  disk: 20G
+  image: "20.04"
+  ci-repo: https://github.com/oscar-system/oscar-ci
+jenkins:
+  user: jenkins
+  passwd: jenkins
+jobs:
+  oscar:
+    parameters:
+    - name: JULIA_VERSION
+      string: "download:1.4.2"
+      desc: >
+        Which branch of Julia to build? This can be a git branch name,
+        a git tag prefixed by "tag:" or a version number prefixed by
+        "download:" to grab a tarball directly.
+    - name: GAP_VERSION
+      string: master
+      desc: >
+        Which branch of GAP to track? (We will not actually build this
+        version, this is just to track commits.)
+    - name: BUILDTYPE
+      options:
+      - master
+      - stable
+      - develop
+      desc: >
+        Whether to build the current stable tagged versions or the
+        master branches. The develop & master options vary in the
+        order in which dependencies are installed, with develop mode
+        trying to install dependencies before packages that use them.
+    - name: BUILDJOBS
+      string: 4
+    - name: REBUILDMODE
+      options:
+      - normal
+      - full
+      - none
+      desc: >
+        Whether to do a full rebuild, an incremental build, or to
+        skip rebuilding and go straight to tests.
+    - name: NODE_LABEL
+      string: master
+      desc: >
+        Which nodes to run this job on.
+    - name: DOCKERIZE
+      options:
+      - "no"
+      - "yes"
+      desc: >
+        Whether to run tests within a docker container.
+    # timer:
+    #   "H/30 * * * *"
+    jenkinsfile:
+      repo: https://github.com/oscar-system/oscar
+      branch: master
+      path: Jenkinsfile
+  oscar-stable:
+    parameters:
+    - name: JULIA_VERSION
+      string: "download:1.4.2"
+      desc: >
+        Which branch of Julia to build?
+    - name: GAP_VERSION
+      string: master
+      desc: >
+        Which branch of GAP to track?
+    - name: BUILDTYPE
+      options:
+      - stable
+      - master
+      - develop
+      desc: >
+        Whether to build the current stable tagged versions or the
+        master branches. The develop & master options vary in the
+        order in which dependencies are installed, with develop mode
+        trying to install dependencies before packages that use them.
+    - name: BUILDJOBS
+      string: 4
+    - name: REBUILDMODE
+      options:
+      - normal
+      - full
+      - none
+      desc: >
+        Whether to do a full rebuild, an incremental build, or to
+        skip rebuilding and go straight to tests.
+    - name: NODE_LABEL
+      string: master
+      desc: >
+        Which nodes to run this job on.
+    - name: DOCKERIZE
+      options:
+      - "no"
+      - "yes"
+      desc: >
+        Whether to run tests within a docker container.
+    # timer:
+    #   "H/30 * * * *"
+    jenkinsfile:
+      repo: https://github.com/oscar-system/oscar
+      branch: master
+      path: Jenkinsfile
+

@@ -1,0 +1,78 @@
+#!/usr/bin/env ruby
+
+require_relative "vm/vm"
+
+VM.init_system(ARGV.first)
+
+config_oscar_ci = <<EOF
+#!/bin/bash
+rm -rf oscar-ci
+git clone #{$VMSpec["ci-repo"]} oscar-ci
+cd oscar-ci
+cat /dev/null >docker/credentials.yaml
+make -C docker
+test -f jenkins.war || bin/get-jenkins
+EOF
+
+def admin_user_groovy(user, passwd)
+<<EOF
+import jenkins.model.*
+import hudson.security.*
+
+def jenkins = Jenkins.getInstance()
+if(!(jenkins.getSecurityRealm() instanceof HudsonPrivateSecurityRealm)) {
+  jenkins.setSecurityRealm(new HudsonPrivateSecurityRealm(false))
+}
+
+if(!(jenkins.getAuthorizationStrategy() instanceof GlobalMatrixAuthorizationStrategy)) {
+  jenkins.setAuthorizationStrategy(new GlobalMatrixAuthorizationStrategy())
+}
+
+def user = jenkins.getSecurityRealm().createAccount("#{user}", "#{passwd}")
+user.save()
+jenkins.getAuthorizationStrategy().add(Jenkins.ADMINISTER, "#{user}")
+jenkins.save()
+EOF
+end
+
+def seturl_groovy(ipaddr)
+<<EOF
+import jenkins.model.*
+
+url = "http://#{ipaddr}:8080/"
+
+urlConfig = JenkinsLocationConfiguration.get()
+urlConfig.setUrl(url)
+urlConfig.save()
+EOF
+end
+
+vm = VM.find_vm
+if vm then
+  VM.start_vm
+else
+  VM.launch_vm
+end
+name, status, ipaddr, _ = VM.find_vm
+for jobname, jobspec in ($OscarConfig["jobs"] || {})
+  config_xml = JobGen::make_config(jobname, jobspec)
+  jobsdir = "#{__dir__}ref/jobs/#{jobname}"
+  FileUtils.mkdir_p jobsdir
+  File.write("#{jobsdir}/config.xml", config_xml)
+end
+init_groovy_dir = "#{__dir__}/ref/init.groovy.d"
+FileUtils.mkdir_p init_groovy_dir
+File.write("#{init_groovy_dir}/admin-user.groovy",
+  admin_user_groovy($OscarConfig["jenkins"]["user"],
+    $OscarConfig["jenkins"]["passwd"]))
+File.write("#{init_groovy_dir}/seturl.groovy",
+  seturl_groovy(ipaddr))
+VM.mount "#{__dir__}/ref", "ref"
+VM.execute "mkdir", "-p", "jenkins"
+VM.execute "cp", "-a", "ref/.", "jenkins"
+VM.umount
+VM.transfer("#{__dir__}/vm/with-workspace.sh", "with-workspace")
+VM.execute(*%w{sudo cp with-workspace /usr/local/bin/with-workspace})
+VM.execute(*%w{sudo chmod 755 /usr/local/bin/with-workspace})
+VM.write("config-oscar.sh", config_oscar_ci)
+VM.execute(*%w{bash config-oscar.sh})

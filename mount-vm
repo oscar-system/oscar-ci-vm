@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+require_relative "vm/vm"
+
+VM.init_system(ARGV.shift)
+
+name, status, ipaddr, _ = VM.find_vm
+error "VM does not exist" if not name
+VM.start_vm
+VM.mount *ARGV

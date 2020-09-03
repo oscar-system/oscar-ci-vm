@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+require_relative "vm/vm"
+
+VM.init_system(ARGV.first)
+
+name, status, ipaddr, _ = VM.find_vm
+error "VM does not exist" if not name
+VM.start_vm
+for jobname, jobspec in ($OscarConfig["jobs"] || {})
+  config_xml = JobGen::make_config(jobname, jobspec)
+  jobsdir = "#{__dir__}/ref/jobs/#{jobname}"
+  FileUtils.mkdir_p jobsdir
+  File.write("#{jobsdir}/config.xml", config_xml)
+end
+VM.mount "#{__dir__}/ref", "ref"
+VM.execute "mkdir", "-p", "jenkins/jobs"
+VM.execute "cp", "-a", "ref/jobs/.", "jenkins/jobs"
+VM.umount

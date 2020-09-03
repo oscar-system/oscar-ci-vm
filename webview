@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+require_relative "vm/vm"
+
+VM.init_system(ARGV.first)
+
+name, status, ipaddr, _ = VM.find_vm 
+
+if not name or status != "Running" then
+  error "VM is not running"
+end
+
+url = "http://#{ipaddr}:8080"
+
+puts "Jenkins is available at URL: #{url}"
+
+case RUBY_PLATFORM
+when /linux/ then
+  exec "xdg-open", url
+when /darwin/ then
+  exec "open", url
+else
+  puts "Open the URL in a web brower to manage Jenkins."
+end

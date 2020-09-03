@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+require_relative "vm/vm.rb"
+
+VM.init_system(ARGV.first)
+_, _, ip, _ = VM.find_vm
+VM.execute "oscar-ci/bin/jenkins-nosetup"
