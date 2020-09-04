@@ -18,6 +18,9 @@ jobs:
         Which branch of Julia to build? This can be a git branch name,
         a git tag prefixed by "tag:" or a version number prefixed by
         "download:" to grab a tarball directly.
+      # Alternative version specs accepted for the Julia installation:
+      # string: "tag:v1.4.2"
+      # string: "master"
     - name: GAP_VERSION
       string: master
       desc: >
