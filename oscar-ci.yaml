@@ -4,7 +4,7 @@ vm:
   cpus: 4
   mem: 8G
   disk: 20G
-  image: "20.04"
+  image: "18.04"
   ci-repo: https://github.com/oscar-system/oscar-ci
 jenkins:
   user: jenkins
