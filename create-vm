@@ -4,10 +4,16 @@ require_relative "vm/vm"
 
 VM.init_system(ARGV.first)
 
+if $VMSpec["branch"] then
+  branch_opt = "--branch #{$VMSpec["branch"]} "
+else
+  branch_opt = ""
+end
+
 config_oscar_ci = <<EOF
 #!/bin/bash
 rm -rf oscar-ci
-git clone #{$VMSpec["ci-repo"]} oscar-ci
+git clone #{branch_opt}#{$VMSpec["ci-repo"]} oscar-ci
 cd oscar-ci
 cat /dev/null >docker/credentials.yaml
 make -C docker
@@ -75,4 +81,9 @@ VM.transfer("#{__dir__}/vm/with-workspace.sh", "with-workspace")
 VM.execute(*%w{sudo cp with-workspace /usr/local/bin/with-workspace})
 VM.execute(*%w{sudo chmod 755 /usr/local/bin/with-workspace})
 VM.write("config-oscar.sh", config_oscar_ci)
+if $VMSpec["redirect-jobs"] then
+  VM.write(".oscar-ci.yaml", YAML.dump({"env" => {
+    "OSCAR_CI_REPO" => $VMSpec["ci-repo"]
+  }}))
+end
 VM.execute(*%w{bash config-oscar.sh})

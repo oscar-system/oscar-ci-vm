@@ -6,6 +6,11 @@ vm:
   disk: 20G
   image: "18.04"
   ci-repo: https://github.com/oscar-system/oscar-ci
+  # The "branch" entry is optional and defaults to "master".
+  branch: master
+  # If set to true, jobs will pull their meta repo from the "ci-repo"
+  # setting instead of what is specified in their Jenkinsfile.
+  redirect-jobs: false
 jenkins:
   user: jenkins
   passwd: jenkins
@@ -56,12 +61,20 @@ jobs:
       - "yes"
       desc: >
         Whether to run tests within a docker container.
+    # The "timer" entry is optional and should only be used if the job should
+    # run at the specified timer intervals.
+    #
     # timer:
     #   "H/30 * * * *"
-    jenkinsfile:
-      repo: https://github.com/oscar-system/oscar
-      branch: master
-      path: Jenkinsfile
+    #
+    # The "jenkinsfile" entry is optional. If omitted entirely or in
+    # part, the value are taken from the vm section for the repo and
+    # the branch and default to "Jenkinsfile" for the path.
+    #
+    # jenkinsfile:
+    #   repo: https://github.com/oscar-system/oscar
+    #   branch: master
+    #   path: Jenkinsfile
   oscar-stable:
     parameters:
     - name: JULIA_VERSION
@@ -102,10 +115,18 @@ jobs:
       - "yes"
       desc: >
         Whether to run tests within a docker container.
+    # The "timer" entry is optional and should only be used if the job should
+    # run at the specified timer intervals.
+    #
     # timer:
     #   "H/30 * * * *"
-    jenkinsfile:
-      repo: https://github.com/oscar-system/oscar
-      branch: master
-      path: Jenkinsfile
+    #
+    # The "jenkinsfile" entry is optional. If omitted entirely or in
+    # part, the value are taken from the vm section for the repo and
+    # the branch and default to "Jenkinsfile" for the path.
+    #
+    # jenkinsfile:
+    #   repo: https://github.com/oscar-system/oscar
+    #   branch: master
+    #   path: Jenkinsfile
 

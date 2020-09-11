@@ -16,3 +16,11 @@ VM.mount "#{__dir__}/ref", "ref"
 VM.execute "mkdir", "-p", "jenkins/jobs"
 VM.execute "cp", "-a", "ref/jobs/.", "jenkins/jobs"
 VM.umount
+if $VMSpec["redirect-jobs"] then
+  VM.write(".oscar-ci.yaml", YAML.dump({"env" => {
+    "OSCAR_CI_REPO" => $VMSpec["ci-repo"]
+  }}))
+else
+  VM.write(".oscar-ci.yaml", YAML.dump({"env" => {
+  }}))
+end

@@ -137,18 +137,28 @@ does basically that.
 
 # Alternative CI configurations and package testing in a CI context
 
-By changing the Jenkinsfile location for a job (either via the UI or
-by adapting the `oscar-ci.yaml` entry for that job), one can test
-with different configurations.
+Jobs can be configured to use a repository other than the standard
+`https://github.com/oscar-system/oscar-ci` to run tests.
+
+This URL is stored in two different locations:
+
+1. The Job configuration.
+2. The Jenkinsfile for the stop (in variable `metarepo`).
+
+In order to facilitate easier testing, `create-vm` and `reconf-jobs`
+have support to redirect those addresses. 
 
 Relevant steps:
 
 * Clone or fork `https://github.com/oscar-system/oscar-ci` to where
   you can modify it and the CI server can access it.
-* Point the Jenkins configuration to the Jenkinsfile in that clone or
-  fork as described above.
-* The modified Jenkinsfile must itself be changed so that the `metarepo`
-  variable points to the modified oscar-ci repository.
+* Set the `ci-repo` entry in the `vm` section of the `.yaml` file to
+  the address of the clone or fork.
+* Set the `redirect-jobs` flag in the `vm` section of the `.yaml` file
+  to true. This will tell the Jenkinsfile to pull the metarepo
+  from the specified repository rather than using its `metarepo`
+  variable.
+* Run `./create-vm` or `./reconf-jobs`.
 
 Optional:
 

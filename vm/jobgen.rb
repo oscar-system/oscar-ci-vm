@@ -103,9 +103,9 @@ module JobGen
 
     def make_config(jobname, spec)
       timer = spec["timer"]
-      jfile = spec["jenkinsfile"]
-      repo = jfile["repo"]
-      branch = jfile["branch"] || "master"
+      jfile = spec["jenkinsfile"] || {}
+      repo = jfile["repo"] || $VMSpec["ci-repo"]
+      branch = jfile["branch"] || $VMSpec["branch"] || "master"
       path = jfile["path"] || "Jenkinsfile"
       parameters = spec["parameters"] || []
 

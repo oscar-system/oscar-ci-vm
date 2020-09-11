@@ -34,6 +34,7 @@ packages:
 - ruby
 - ruby-dev
 - screen
+- sshuttle
 - subversion
 - tmux
 - vim
